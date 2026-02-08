@@ -21,6 +21,25 @@ app.get('/download', (req, res) => {
   proc.stdout.pipe(res);
 });
 
+app.get('/search', async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q) {
+      return res.status(400).send('No query');
+    }
+
+    const result = await ytdlp(`ytsearch5:${q}`, {
+      dumpSingleJson: true,
+      noWarning: true,
+    });
+
+    res.json(result.entries);
+  } catch (e) {
+    console.log(e);
+    res.status(500).send('Search failed');
+  }
+});
+
 app.listen(3000, () => {
   console.log('Server running on port 3000');
 });
