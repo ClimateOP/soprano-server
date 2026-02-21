@@ -28,7 +28,7 @@ app.get('/search', async (req, res) => {
       return res.status(400).send('No query');
     }
 
-    const result = await ytdlp(`ytsearch5:${q}`, {
+    const result = await ytdlp(`ytsearch6:${q}`, {
       dumpSingleJson: true,
       noWarning: true,
     });
