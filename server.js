@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const ytdlp = require('yt-dlp-exec').default;
+const { exec } = require('yt-dlp-exec');
 
 const PORT = process.env.PORT || 10000;
 
@@ -15,12 +15,19 @@ app.get('/download', (req, res) => {
 
   res.header('Content-Disposition', 'attachment; filename="audio.mp3"');
 
-  const proc = ytdlp.exec(url, {
+  const proc = exec(url, {
     format: 'bestaudio',
     output: '-',
   });
 
   proc.stdout.pipe(res);
+
+  proc.on('error', (err) => {
+    console.error('Download Error:', err);
+    if (!res.headersSent) {
+      res.status(500).send(err.message);
+    }
+  });
 });
 
 app.get('/search', async (req, res) => {
@@ -28,15 +35,19 @@ app.get('/search', async (req, res) => {
     const { q } = req.query;
     if (!q) return res.status(400).send('No query');
 
-    const result = await ytdlp(`ytsearch1:${q}`, {
+    const result = await exec(`ytsearch1:${q}`, {
       dumpSingleJson: true,
       noWarning: true,
     });
 
+    if (!result.entries) {
+      return res.status(500).send('No entries found');
+    }
+
     res.json(result.entries);
   } catch (e) {
-    console.error('YT-DLP ERROR:', e);
-    res.status(500).send(e.message);
+    console.error('YT-DLP SEARCH ERROR:', e);
+    res.status(500).send(e.message || 'Search failed');
   }
 });
 
