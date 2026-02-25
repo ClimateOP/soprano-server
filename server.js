@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const ytdlp = require('yt-dlp-exec');
+const ytdlp = require('yt-dlp-exec').default;
 
 const PORT = process.env.PORT || 10000;
 
@@ -26,9 +26,7 @@ app.get('/download', (req, res) => {
 app.get('/search', async (req, res) => {
   try {
     const { q } = req.query;
-    if (!q) {
-      return res.status(400).send('No query');
-    }
+    if (!q) return res.status(400).send('No query');
 
     const result = await ytdlp(`ytsearch1:${q}`, {
       dumpSingleJson: true,
@@ -37,8 +35,8 @@ app.get('/search', async (req, res) => {
 
     res.json(result.entries);
   } catch (e) {
-    console.log(e);
-    res.status(500).send('Search failed');
+    console.error('YT-DLP ERROR:', e);
+    res.status(500).send(e.message);
   }
 });
 
