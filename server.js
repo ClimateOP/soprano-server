@@ -1,8 +1,8 @@
 const express = require('express');
 const cors = require('cors');
-const { exec } = require('yt-dlp-exec');
+const ytdlp = require('yt-dlp-exec');
 
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 3000;
 
 const app = express();
 app.use(cors());
@@ -15,7 +15,7 @@ app.get('/download', (req, res) => {
 
   res.header('Content-Disposition', 'attachment; filename="audio.mp3"');
 
-  const proc = exec(url, {
+  const proc = ytdlp.exec(url, {
     format: 'bestaudio',
     output: '-',
   });
@@ -35,7 +35,7 @@ app.get('/search', async (req, res) => {
     const { q } = req.query;
     if (!q) return res.status(400).send('No query');
 
-    const result = await exec(`ytsearch1:${q}`, {
+    const result = await ytdlp(`ytsearch6:${q}`, {
       dumpSingleJson: true,
       noWarning: true,
     });
