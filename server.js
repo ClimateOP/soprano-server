@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const ytdlp = require('yt-dlp-exec').create('/usr/local/bin/yt-dlp');
-const { exec } = require('yt-dlp-exec');
 
 const PORT = process.env.PORT || 3000;
 
@@ -37,7 +36,7 @@ app.get('/download', (req, res) => {
 
   res.header('Content-Disposition', 'attachment; filename="audio.mp3"');
 
-  const proc = exec(url, {
+  const proc = ytdlp.exec(url, {
     format: 'bestaudio',
     output: '-',
   });
