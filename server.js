@@ -15,6 +15,8 @@ app.get('/search', async (req, res) => {
     const result = await ytdlp(`ytsearch6:${q}`, {
       dumpSingleJson: true,
       noWarning: true,
+      extractFlat: true,
+      addHeader: ['user-agent: Mozilla/5.0'],
     });
 
     if (!result.entries) {
