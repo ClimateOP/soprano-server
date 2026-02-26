@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const ytdlp = require('yt-dlp-exec').create('/opt/render/project/bin/yt-dlp');
+const ytdlp = require('yt-dlp-exec');
 
 const PORT = process.env.PORT || 3000;
 
@@ -15,8 +15,6 @@ app.get('/search', async (req, res) => {
     const result = await ytdlp(`ytsearch6:${q}`, {
       dumpSingleJson: true,
       noWarning: true,
-      extractFlat: true,
-      addHeader: ['user-agent: Mozilla/5.0'],
     });
 
     if (!result.entries) {
