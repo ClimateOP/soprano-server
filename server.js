@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const ytdlp = require('yt-dlp-exec').create('/usr/local/bin/yt-dlp');
+const ytdlp = require('yt-dlp-exec').create('/opt/render/project/bin/yt-dlp');
 
 const PORT = process.env.PORT || 3000;
 
