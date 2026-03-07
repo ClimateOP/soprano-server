@@ -32,12 +32,14 @@ cd ~/soprano-server && node server.js &
 EOF
 chmod +x ~/.termux/boot/start-soprano.sh
 
+# Auto-start server when Termux opens
+echo "cd ~/soprano-server && node server.js &" >> ~/.bashrc
+
 echo ""
 echo "✅ Setup complete!"
+echo "🚀 Open Termux after every reboot and the server will start automatically"
 echo ""
-echo "⚠️  To enable auto-start on boot:"
-echo "    Install 'Termux:Boot' from F-Droid"
-echo "    Open it once to activate"
-echo ""
+
+# Start server now
 echo "🚀 Starting server now..."
 cd ~/soprano-server && node server.js
