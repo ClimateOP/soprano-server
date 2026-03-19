@@ -1,8 +1,13 @@
 const express = require('express');
 const cors = require('cors');
 const ytdlp = require('yt-dlp-exec');
+const fs = require('fs');
 
 const PORT = process.env.PORT || 3000;
+const TMP_DIR = `${process.env.HOME}/tmp`;
+if (!fs.existsSync(TMP_DIR)) {
+  fs.mkdirSync(TMP_DIR);
+}
 
 const app = express();
 app.use(cors());
@@ -19,10 +24,10 @@ app.get('/search', async (req, res) => {
         noWarning: true,
         ignoreErrors: true,
       });
-    } catch (e) {
-      if (e.stdout) {
+    } catch (err) {
+      if (err.stdout) {
         try {
-          result = JSON.parse(e.stdout);
+          result = JSON.parse(err.stdout);
         } catch {
           return res.status(500).send('Search failed');
         }
@@ -42,33 +47,36 @@ app.get('/search', async (req, res) => {
     }
 
     res.json(entries);
-  } catch (e) {
-    console.error('YT-DLP SEARCH ERROR:', e);
-    res.status(500).send(e.message || 'Search failed');
+  } catch (err) {
+    console.error('YT-DLP SEARCH ERROR:', err);
+    res.status(500).send(err.message || 'Search failed');
   }
 });
 
-app.get('/download', (req, res) => {
+app.get('/download', async (req, res) => {
   const { url } = req.query;
   if (!url) {
     return res.status(400).send('No URL');
   }
 
-  res.header('Content-Disposition', 'attachment; filename="audio.mp3"');
+  const tmpFile = `${process.env.HOME}/tmp/audio_${Date.now()}.webm`;
 
-  const proc = ytdlp.exec(url, {
-    format: 'bestaudio',
-    output: '-',
-  });
+  try {
+    await ytdlp(url, {
+      format: 'bestaudio',
+      output: tmpFile,
+    });
 
-  proc.stdout.pipe(res);
-
-  proc.on('error', (err) => {
-    console.error('Download Error:', err);
+    res.header('Content-Disposition', 'attachment; filename="audio.mp3"');
+    res.sendFile(tmpFile, { root: '/' }, (err) => {
+      fs.unlink(tmpFile, () => {});
+    });
+  } catch (err) {
+    console.error('Download Error: ', err);
     if (!res.headersSent) {
       res.status(500).send(err.message);
     }
-  });
+  }
 });
 
 app.listen(PORT, () => {
