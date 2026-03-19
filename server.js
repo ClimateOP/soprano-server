@@ -12,13 +12,26 @@ app.get('/search', async (req, res) => {
     const { q } = req.query;
     if (!q) return res.status(400).send('No query');
 
-    const result = await ytdlp(`ytsearch6:${q}`, {
-      dumpSingleJson: true,
-      noWarning: true,
-      ignoreErrors: true,
-    });
+    let result;
+    try {
+      result = await ytdlp(`ytsearch6:${q}`, {
+        dumpSingleJson: true,
+        noWarning: true,
+        ignoreErrors: true,
+      });
+    } catch (e) {
+      if (e.stdout) {
+        try {
+          result = JSON.parse(e.stdout);
+        } catch {
+          return res.status(500).send('Search failed');
+        }
+      } else {
+        return res.status(500).send('Search failed');
+      }
+    }
 
-    if (!result.entries) {
+    if (!result?.entries) {
       return res.status(500).send('No entries found');
     }
 
