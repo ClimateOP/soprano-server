@@ -15,13 +15,20 @@ app.get('/search', async (req, res) => {
     const result = await ytdlp(`ytsearch6:${q}`, {
       dumpSingleJson: true,
       noWarning: true,
+      ignoreErrors: true,
     });
 
     if (!result.entries) {
       return res.status(500).send('No entries found');
     }
 
-    res.json(result.entries);
+    const entries = result.entries.filter((entry) => entry !== null);
+
+    if (entries.length === 0) {
+      return res.status(500).send('No entries found');
+    }
+
+    res.json(entries);
   } catch (e) {
     console.error('YT-DLP SEARCH ERROR:', e);
     res.status(500).send(e.message || 'Search failed');
